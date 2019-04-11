@@ -30,9 +30,6 @@
 #include <string>
 #include <vector>
 #include <string.h>
-#include <fstream>
-
-using namespace std;
 
 #include "./file.hh"
 
@@ -121,6 +118,12 @@ void getElementsFromLine(const std::string& line, const vector<char>& _seps, std
 	return;
 }
 
+#ifdef WIN64
+bool getLineFromFile(ifstream& _fileStream, std::string& _line)
+{
+	return true;
+}
+#else
 bool getLineFromFile(FILE*& _fileStream, string& _line)
 {
 	char *line = NULL;
@@ -141,6 +144,7 @@ bool getLineFromFile(FILE*& _fileStream, string& _line)
 		return false;
 	}
 }
+#endif
 
 bool getFirstElementInLineFromFile(FILE*& _fileStream, string& _line)
 {

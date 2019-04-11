@@ -171,9 +171,12 @@ class hTable
 
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifndef WIN64
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#endif
 
 using namespace std;
 

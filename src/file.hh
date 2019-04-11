@@ -34,6 +34,8 @@
 #include<stdint.h>
 #include<vector>
 #include "./dataType.hh"
+#include <fstream>
+using namespace std;
 
 void getElementsFromLine(char*& line, const size_t& len, const int _maxElement, std::vector< std::string >& _elements);
 

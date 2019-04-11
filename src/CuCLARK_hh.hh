@@ -40,9 +40,15 @@
 #include<iostream>
 #include<sstream>
 #include<cstdlib>
+#include <chrono>
 #include "./dataType.hh"
 #include "./HashTableStorage_hh.hh"
 #include "./CuClarkDB.cuh"
+
+#ifdef WIN64
+#include "stdint.h"
+#include "omp.h"
+#endif
 
 //~ #include <bitset>
 
@@ -185,8 +191,7 @@ class CuCLARK
 				
 		void printExtendedResultsSynced(const uint8_t * _map,  const char* _fileResult);
 		
-		void printSpeedStats(const struct timeval& 			_requestEnd, 
-				const struct timeval& 				_requestStart, 
+		void printSpeedStats(const uint64_t 		seconds,
 				const char* 					_fileResult
 				)  const;
 
@@ -204,12 +209,15 @@ class CuCLARK
 #include <string.h>
 #include <fstream>
 #include <time.h>
+
+#ifndef WIN64
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#endif
 
 #include "./file.hh"
 #include "./kmersConversion.hh"
@@ -521,13 +529,14 @@ void CuCLARK<HKMERr>::runSimple(const char* _fileTofilesname, const char* _fileR
 	std::ifstream in(_fileTofilesname, std::ios::binary | std::ios::ate);
 	fileSize = in.tellg();
 
+	uint8_t *map;
+#ifndef WIN64
 	int fd = open(_fileTofilesname, O_RDONLY);
 	if (fd == -1 || fileSize == 0)
 	{
 		cerr << "Failed to open " << _fileTofilesname << endl;
 		return;
 	}
-	uint8_t *map;
 	map = (uint8_t*) mmap(0, fileSize, PROT_READ, MAP_PRIVATE, fd, 0);
 	if ( map == MAP_FAILED )
 	{
@@ -535,6 +544,7 @@ void CuCLARK<HKMERr>::runSimple(const char* _fileTofilesname, const char* _fileR
 		cerr << "Failed to mmapping the file." << endl;
 		return;
 	}
+#endif
 	// Checking file to store result:
 	string sfileResult(_fileResult);
 	sfileResult += ".csv";
@@ -547,27 +557,29 @@ void CuCLARK<HKMERr>::runSimple(const char* _fileTofilesname, const char* _fileR
 		return;
 	}
 
-	struct timeval requestStart, requestEnd;
-
 	fclose(_fout);
 
-
-	gettimeofday(&requestStart, NULL);
+	std::chrono::time_point<std::chrono::system_clock> requestStart = std::chrono::system_clock::now();
 	///////////////////////////////////////////////////////////////////////
 	//~ getObjectsDataComputeFull(map, fileSize);
 	getObjectsDataComputeFullGPU(map, fileSize, fileResult);
 	//~ printExtendedResults(fileResult);
 	///////////////////////////////////////////////////////////////////////
-	gettimeofday(&requestEnd, NULL);
-	// Measurement execution time
-	printSpeedStats(requestEnd, requestStart, fileResult);
 
+	std::chrono::time_point<std::chrono::system_clock> requestEnd = std::chrono::system_clock::now();
+	uint64_t diff = std::chrono::duration_cast<std::chrono::seconds>(requestStart - requestEnd).count();
+
+	// Measurement execution time
+	printSpeedStats(diff, fileResult);
+
+#ifndef WIN64
 	msync(map, fileSize, MS_SYNC);
 	if (munmap(map, fileSize) == -1)
 	{
 		cerr << "Error un-mmapping the file." << endl;
 	}
 	close(fd);
+#endif
 
 	return;
 }
@@ -1934,13 +1946,13 @@ void CuCLARK<HKMERr>::print(const bool& _creatingkmfiles, const ITYPE& _sampling
 /**
  * Prints speed stats for processing an input file to standard output.
  */
+
 template <typename HKMERr>
-void CuCLARK<HKMERr>::printSpeedStats(const struct timeval& _requestEnd, const struct timeval& _requestStart, const char* _fileResult) const 
+void CuCLARK<HKMERr>::printSpeedStats(const uint64_t seconds, const char* _fileResult) const
 {
-	double diff = (_requestEnd.tv_sec - _requestStart.tv_sec) + (_requestEnd.tv_usec - _requestStart.tv_usec) / 1000000.0;
-	cout <<" - Assignment time: "<<diff<<" s. Speed: ";
-	cout << (size_t) (((double) m_nbObjects)/(diff)*60.0)<<" objects/min. ("<< m_nbObjects<<" objects)."<<endl;
-	cout <<" - Results stored in " << _fileResult << endl;
+	cout << " - Assignment time: " << seconds << " s. Speed: ";
+	cout << (size_t)(((double)m_nbObjects) / (seconds)*60.0) << " objects/min. (" << m_nbObjects << " objects)." << endl;
+	cout << " - Results stored in " << _fileResult << endl;
 }
 
 /**
