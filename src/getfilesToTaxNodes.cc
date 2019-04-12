@@ -72,14 +72,16 @@ int main(int argc, char** argv)
 		cerr << "Usage: " << argv[0] << " <./nodes.dmp> <./file_taxid>"<< endl;
 		exit(-1);
 	}
-	FILE * fdn = fopen(argv[1], "r");
-	if (fdn == NULL)
+	std::ifstream fdn;
+	fdn.open(argv[1]);
+	if (fdn.fail())
 	{
 		cerr << "Failed to open " << argv[1] << endl;
 		exit(-1);
 	}
-	FILE * fdt = fopen(argv[2], "r");
-        if (fdt == NULL)
+	std::ifstream fdt;
+	fdt.open(argv[2]);
+	if (fdt.fail())
         {
                 cerr << "Failed to open " << argv[2] << endl;
                 exit(-1);
@@ -97,7 +99,7 @@ int main(int argc, char** argv)
 #define MAXNB 20000000
 	vector<node> nodes(MAXNB);
 	string line;
-	vector<string> ele;
+	vector<string> ele; 
 	vector<char> sep;
 	sep.push_back(' ');
 	sep.push_back('|');
@@ -115,7 +117,7 @@ int main(int argc, char** argv)
 		if (it != nameTorank.end() && (ele.size()==3 || ele[3].find("group") == std::string::npos))
 		{	nodes[id].rank = it->second; }
 	}
-	fclose(fdn);
+	fdn.close();
 	cerr << "done." << endl;
 	vector<node> lineage;
 	cerr << "Retrieving lineage for each sequence... " ;
@@ -147,7 +149,7 @@ int main(int argc, char** argv)
 		}
 		cout << endl;
 	}
-	fclose(fdt);
+	fdt.close();
 	cerr << "done." << endl;
 	return 0;
 }

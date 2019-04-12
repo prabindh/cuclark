@@ -401,15 +401,17 @@ void CuCLARK<HKMERr>::run(const char* _filesToObjects, const char* _fileToResult
 	}
 	fclose(fd);
 
-	fd = fopen(_filesToObjects, "r");
+	std::ifstream fd1;
+	fd1.open(_filesToObjects);
+
 	string line = "";
-	getLineFromFile(fd, line);
+	getLineFromFile(fd1, line);
+	fd1.close();
 	vector<string> ele;
 	vector<char> seps;
 	seps.push_back(' ');
 	seps.push_back('\t');
 	seps.push_back(',');
-	fclose(fd);
 
 	getElementsFromLine(line, seps, ele);	
 
@@ -421,17 +423,19 @@ void CuCLARK<HKMERr>::run(const char* _filesToObjects, const char* _fileToResult
 	}
 	
 	// run for multiple inputs
-	FILE * r_fd = fopen(_fileToResults, "r");
-	FILE * o_fd = fopen(_filesToObjects, "r");
+	std::ifstream resultsStream, objectsStream;
+	resultsStream.open(_fileToResults);
+	objectsStream.open(_filesToObjects);
+
 	string o_line = "", r_line = "";
 	cout <<  "Using " << omp_get_max_threads() << " CPU thread(s)." <<  endl;
-	while (getLineFromFile(o_fd, o_line) && getLineFromFile(r_fd, r_line))
+	while (getLineFromFile(objectsStream, o_line) && getLineFromFile(resultsStream, r_line))
 	{
 		cout << "> Processing file \'" << o_line.c_str() << "\' in " << m_numBatches << " batches."<< endl;
 		CuCLARK::runSimple(o_line.c_str(), r_line.c_str(), _minCountO); 
 	}
-	fclose(r_fd); 
-	fclose(o_fd);
+	resultsStream.close();
+	objectsStream.close();
 	return;
 }
 
@@ -461,15 +465,16 @@ void CuCLARK<HKMERr>::run(const char* _pairedfile1, const char* _pairedfile2, co
 	}
 	fclose(fd);
 
-	fd = fopen(_pairedfile1, "r");
+	std::ifstream fd1;
+	fd1.open(_pairedfile1);
 	string line 	= "";
-	getLineFromFile(fd, line);
+	getLineFromFile(fd1, line);
 	vector<string> ele;
 	vector<char> seps;
 	seps.push_back(' ');
 	seps.push_back('\t');
 	seps.push_back(',');
-	fclose(fd);
+	fd1.close();
 
 	getElementsFromLine(line, seps, ele);
 	if (line[0] == '>' || line[0] == '@' || ele.size() == 2)
@@ -488,9 +493,11 @@ void CuCLARK<HKMERr>::run(const char* _pairedfile1, const char* _pairedfile2, co
 	}
 	
 	// run for multiple inputs
-	FILE * r_fd 	= fopen(_fileToResults, "r");
-	FILE * o1_fd 	= fopen(_pairedfile1, "r");
-	FILE * o2_fd 	= fopen(_pairedfile2, "r");
+	std::ifstream r_fd, o1_fd, o2_fd;
+	r_fd.open(_fileToResults);
+	o1_fd.open(_pairedfile1);
+	o2_fd.open(_pairedfile2);
+
 	string o1_line 	= "", o2_line   = "", r_line = "";
 	cout <<  "Using " << omp_get_max_threads() << " CPU thread(s)." <<  endl;
 	while (getLineFromFile(o1_fd, o1_line) && getLineFromFile(o2_fd, o2_line) && getLineFromFile(r_fd, r_line))
@@ -507,9 +514,10 @@ void CuCLARK<HKMERr>::run(const char* _pairedfile1, const char* _pairedfile2, co
 		free(mergedFiles);
 		mergedFiles = NULL;
 	}
-	fclose(r_fd);
-	fclose(o1_fd);
-	fclose(o2_fd);
+	r_fd.close();
+	o1_fd.close();
+	o2_fd.close();
+
 	return;
 }
 
@@ -872,10 +880,14 @@ size_t CuCLARK<HKMERr>::makeSpecificTargetSets(const vector<string>& _filesHT, c
 			}
 			// spectrum form
 			fseek(fd, 0, 0);
+
+			std::ifstream fd2;
+			fd2.open(m_targetsID[t].first.c_str());
+
 			string s_kmer = "";
 			ITYPE val;
 			uint8_t counter = 0;
-			while (getFirstAndSecondElementInLine(fd, s_kmer, val))
+			while (getFirstAndSecondElementInLine(fd2, s_kmer, val))
 			{
 				if (counter % m_iterKmers == 0 && val > m_minCountTarget)
 				{
@@ -886,6 +898,7 @@ size_t CuCLARK<HKMERr>::makeSpecificTargetSets(const vector<string>& _filesHT, c
 				continue;
 			}
 			fclose(fd);
+			fd2.close();
 			cerr << "\r Progress report: (" <<t+1<< "/"<<m_targetsID.size()<<")              ";
 		}
 		cerr << nt << " nt read in total." << endl;
@@ -1096,13 +1109,18 @@ size_t CuCLARK<HKMERr>::makeSpecificTargetSets(const vector<string>& _filesHT, c
 				}
 				// spectrum form
 				fseek(fd, 0, 0);
+
+				std::ifstream fd2;
+				fd2.open(m_targetsID[t].first.c_str());
+
 				string s_kmer = "";
 				ITYPE val;
-				while (getFirstAndSecondElementInLine(fd, s_kmer, val))
+				while (getFirstAndSecondElementInLine(fd2, s_kmer, val))
 				{	if (val > m_minCountTarget)
 					{	commonKmersHT.addElement(s_kmer, m_targetsID[t].second, (size_t) val);}
 				}
 				fclose(fd);
+				fd2.close();
 				cerr << "\r Progress report: (" <<t+1<< "/"<<m_targetsID.size()<<")              ";
 			}
 		}
@@ -1309,13 +1327,19 @@ size_t CuCLARK<HKMERr>::makeSpecificTargetSets(const vector<string>& _filesHT, c
 			}
 			// spectrum form
 			fseek(fd, 0, 0);
+
+			std::ifstream fd2;
+			fd2.open(m_targetsID[t].first.c_str());
+
 			string s_kmer = "";
 			ITYPE val;
-			while (getFirstAndSecondElementInLine(fd, s_kmer, val))
+			while (getFirstAndSecondElementInLine(fd2, s_kmer, val))
 			{       if (val > m_minCountTarget)
 				{       commonKmersHT.addElement(s_kmer, m_targetsID[t].second, (size_t) val);}
 			}
 			fclose(fd);
+
+			fd2.close();
 			cerr << "\r Progress report: (" <<t+1<< "/"<<m_targetsID.size()<<")              ";
 		}
 	}
@@ -1806,8 +1830,10 @@ void CuCLARK<HKMERr>::getObjectsDataComputeFullGPU(const uint8_t * _map,  const 
 template <typename HKMERr>
 bool CuCLARK<HKMERr>::getTargetsData(const char* _filesName, vector<string>& _filesHT, vector<string>& _filesHTC, const bool& _creatingkmfiles, const ITYPE& _samplingfactor)
 {
-	FILE * meta_f = fopen(_filesName,"r");
-	if (meta_f == NULL)
+	std::ifstream meta_f;
+	meta_f.open(_filesName);
+
+	if (meta_f.fail())
 	{
 		cerr << "Failed to open targets data in file: " << _filesName << endl;
 		exit(-1);
@@ -1824,8 +1850,9 @@ bool CuCLARK<HKMERr>::getTargetsData(const char* _filesName, vector<string>& _fi
 		}
 		fclose(t_f);
 	}
-	fclose(meta_f);	
-	meta_f = fopen(_filesName,"r");
+	meta_f.close();
+
+	meta_f.open(_filesName);
 
 	bool areHTfilespresent = true;
 	while(getLineFromFile(meta_f, subfile))
@@ -1878,7 +1905,7 @@ bool CuCLARK<HKMERr>::getTargetsData(const char* _filesName, vector<string>& _fi
 		}
 		m_targetsID.push_back(target);
 	}
-	fclose(meta_f);
+	meta_f.close();
 	print(_creatingkmfiles, _samplingfactor);
 
 	if (_creatingkmfiles)

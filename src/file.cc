@@ -123,6 +123,18 @@ bool getLineFromFile(ifstream& _fileStream, std::string& _line)
 {
 	return true;
 }
+bool getFirstAndSecondElementInLine(ifstream& _fileStream, std::string& _line, ITYPE& _freq)
+{
+	return true;
+}
+bool getFirstAndSecondElementInLine(ifstream& _fileStream, uint64_t& _kIndex, ITYPE& _index)
+{
+	return true;
+}
+bool getFirstElementInLineFromFile(ifstream& _fileStream, string& _line)
+{
+	return true;
+}
 #else
 bool getLineFromFile(FILE*& _fileStream, string& _line)
 {
@@ -144,8 +156,6 @@ bool getLineFromFile(FILE*& _fileStream, string& _line)
 		return false;
 	}
 }
-#endif
-
 bool getFirstElementInLineFromFile(FILE*& _fileStream, string& _line)
 {
 	char *line = NULL;
@@ -204,7 +214,7 @@ bool getFirstAndSecondElementInLine(FILE*& _fileStream, std::string& _line, ITYP
 	}
 	return false;
 }
-
+#endif
 
 void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFile)
 {
@@ -215,8 +225,11 @@ void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFi
         sep.push_back(' ');
         sep.push_back('/');
         sep.push_back('\t');
-        FILE * fd1 = fopen(_file1, "r");
-        FILE * fd2 = fopen(_file2, "r");
+		std::ifstream fd1;
+		std::ifstream fd2;
+
+		fd1.open(_file1);
+		fd2.open(_file2);
         getLineFromFile(fd1, line1);
         getLineFromFile(fd2, line2);
         if (line1[0] != line2[0])
@@ -231,8 +244,12 @@ void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFi
                 exit(1);
         }
         sep.push_back(delim);
-        rewind(fd1);
-        rewind(fd2);
+
+		fd1.clear();
+		fd1.seekg(0);
+		fd2.clear();
+		fd2.seekg(0);
+
         ofstream fout(_objFile, std::ios::binary);
         while(getLineFromFile(fd1, line1) && getLineFromFile(fd2, line2))
         {
@@ -266,8 +283,6 @@ void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFi
                         continue;
                 }
         }
-        fclose(fd1);
-        fclose(fd2);
         fout.close();
 }
 
@@ -279,9 +294,9 @@ void deleteFile(const char* _filename)
 
 bool validFile(const char* _file)
 {
-        FILE * fd = fopen(_file, "r");
-        if (fd == NULL)
+		std::ifstream fd;
+		fd.open(_file);
+        if (fd.fail())
         {       return false;   }
-        fclose(fd);
         return true;
 }

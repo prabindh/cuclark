@@ -697,9 +697,10 @@ bool EHashtable<HKMERr, ELMTr>::queryElement(const IKMER& _ikmer, ILBL& _iLabel)
 	template <typename HKMERr, typename ELMTr>
 void EHashtable<HKMERr, ELMTr>::Load(const string& _fileHT, const std::string& _label, const ITYPE& _minCount)
 {
-	FILE * fd = fopen(_fileHT.c_str(), "r");
+	std::ifstream fd;
+	fd.open(_fileHT.c_str());
 
-	if (fd == NULL)
+	if (fd.fail())
 	{
 		cerr << "Failed to open " << _fileHT << endl;
 		return;
@@ -733,6 +734,6 @@ void EHashtable<HKMERr, ELMTr>::Load(const string& _fileHT, const std::string& _
 			m_localIndex++;
 		}
 	}
-	fclose(fd);
+	fd.close();
 }
 

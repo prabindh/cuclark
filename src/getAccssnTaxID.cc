@@ -51,20 +51,27 @@ int main(int argc, char** argv)
 		cerr << "Usage: "<< argv[0] << " <./file of filenames> <./nucl_accession2taxid> <./merged.dmp>"<< endl;
 		exit(-1);
 	}
-	FILE * oldTx = fopen(argv[3], "r");
-        if (oldTx == NULL)
+	std::ifstream oldTx;
+	oldTx.open(argv[3]);
+
+        if (oldTx.fail())
         {
                 cerr << "Failed to open " << argv[3] << endl;
                 exit(-1);
         }
-	FILE * accToTx = fopen(argv[2], "r");
-	if (accToTx == NULL)
+
+	std::ifstream accToTx;
+	accToTx.open(argv[2]);
+
+	if (accToTx.fail())
 	{
 		cerr << "Failed to open " << argv[2] << endl;
 		exit(-1);
 	}
-	FILE * meta_f = fopen(argv[1], "r");
-	if (meta_f == NULL)
+
+	std::ifstream meta_f;
+	meta_f.open(argv[1]);
+	if (meta_f.fail())
 	{
 		cerr << "Failed to open " << argv[1] << endl;
 		exit(1);
@@ -88,8 +95,10 @@ int main(int argc, char** argv)
 	cerr << "Loading accession number of all files... " ;
 	while (getLineFromFile(meta_f, file))
 	{
-		FILE * fd = fopen(file.c_str(), "r");
-		if (fd == NULL)
+		std::ifstream fd;
+		fd.open(file.c_str());
+
+		if (fd.fail())
 		{
 			cerr << "Failed to open sequence file: " <<  file << endl;
 			cout << file << "\tUNKNOWN" << endl;
@@ -120,9 +129,9 @@ int main(int argc, char** argv)
 			s.Accss = acc;
 			seqs.push_back(s);
 		}
-		fclose(fd);
+		fd.close();
 	}
-	fclose(meta_f);
+	meta_f.close();
 	cerr << "done ("<< accToidx.size() << ")" << endl;
 
 	string on_line;
@@ -142,7 +151,7 @@ int main(int argc, char** argv)
 			oldTonew[atoi(ele[0].c_str())] = atoi(ele[1].c_str());
 		}
 	}	
-	fclose(oldTx);
+	oldTx.close();
 	std::cerr << "done" << std::endl;
 
 	string pair;
@@ -170,7 +179,7 @@ int main(int argc, char** argv)
 			TaxIDs[it->second] = new_taxID;
 		}
         }
-        fclose(accToTx);
+	accToTx.close();
 	for(size_t t = 0; t < seqs.size(); t++)
 	{
 		cout << seqs[t].Name << "\t" ;

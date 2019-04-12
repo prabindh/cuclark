@@ -43,13 +43,13 @@ void getElementsFromLine(const std::string& line, const std::vector<char>& _seps
 
 void getElementsFromLine(const std::string& line, const size_t& _maxElement, std::vector< std::string >& _elements);
 
-bool getLineFromFile(FILE*& _fileStream, std::string& _line);
+bool getLineFromFile(ifstream& _fileStream, std::string& _line);
 
-bool getFirstElementInLineFromFile(FILE*& _fileStream, std::string& _line);
+bool getFirstElementInLineFromFile(ifstream& _fileStream, std::string& _line);
 
-bool getFirstAndSecondElementInLine(FILE*& _fileStream, std::string& _line, ITYPE& _freq);
+bool getFirstAndSecondElementInLine(ifstream& _fileStream, std::string& _line, ITYPE& _freq);
 
-bool getFirstAndSecondElementInLine(FILE*& _fileStream, uint64_t& _kIndex, ITYPE& _index);
+bool getFirstAndSecondElementInLine(ifstream& _fileStream, uint64_t& _kIndex, ITYPE& _index);
 
 void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFile);
 
