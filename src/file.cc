@@ -33,7 +33,7 @@
 
 #include "./file.hh"
 
-void getElementsFromLine(char*& line, const size_t& len, const int _maxElement, std::vector< std::string >& _elements)
+void getElementsFromLine(std::string & line, const size_t& len, const int _maxElement, std::vector< std::string >& _elements)
 {
 	size_t t = 0; 
 	size_t cpt = 0;
@@ -118,69 +118,50 @@ void getElementsFromLine(const std::string& line, const vector<char>& _seps, std
 	return;
 }
 
-#ifdef WIN64
 bool getLineFromFile(ifstream& _fileStream, std::string& _line)
 {
-	return true;
+	std::string line;
+	std::getline(_fileStream, line);
+	if (line.length() != 0)
+	{
+		string l(line);
+		if (l[l.size() - 1] == '\n')
+		{
+			l.erase(l.size() - 1, 1);
+		}
+		_line = l;
+		return true;
+	}
+	else
+	{
+		_line = "";
+		return false;
+	}
+	return false;
 }
 bool getFirstAndSecondElementInLine(ifstream& _fileStream, std::string& _line, ITYPE& _freq)
 {
-	return true;
+	std::string line;
+	size_t len = 0;
+	std::getline(_fileStream, line);
+	if (line.length() != 0)
+	{
+		// Take first element and put it into _line
+		// Take second element and put it into _freq
+		vector<string> ele;
+		getElementsFromLine(line, len, 2, ele);
+		_line = ele[0];
+		_freq = atoi(ele[1].c_str());
+		return true;
+	}
+	return false;
 }
 bool getFirstAndSecondElementInLine(ifstream& _fileStream, uint64_t& _kIndex, ITYPE& _index)
 {
-	return true;
-}
-bool getFirstElementInLineFromFile(ifstream& _fileStream, string& _line)
-{
-	return true;
-}
-#else
-bool getLineFromFile(FILE*& _fileStream, string& _line)
-{
-	char *line = NULL;
+	std::string line;	
 	size_t len = 0;
-	if (getline(&line, &len, _fileStream) != -1)
-	{
-		string l(line);
-		if (l[l.size() -1 ] == '\n' )
-		{l.erase(l.size()-1,1);}
-		_line = l;
-		free(line);
-		line = NULL;
-		return true;
-	}
-	else
-	{
-		_line = "";
-		return false;
-	}
-}
-bool getFirstElementInLineFromFile(FILE*& _fileStream, string& _line)
-{
-	char *line = NULL;
-	size_t len = 0;
-	if (getline(&line, &len, _fileStream) != -1)
-	{
-		vector<string> ele;
-		getElementsFromLine(line, len, 1, ele);
-		_line = ele[0];
-		free(line);
-		line = NULL;
-		return true;
-	}
-	else
-	{
-		_line = "";
-		return false;
-	}
-}
-
-bool getFirstAndSecondElementInLine(FILE*& _fileStream, uint64_t& _kIndex, ITYPE& _index)
-{
-	char *line = NULL;
-	size_t len = 0;
-	if (getline(&line, &len, _fileStream) != -1)
+	std::getline(_fileStream, line);
+	if (line.length() != 0)
 	{
 		// Take the first element and put it into _kIndex: type IKMER
 		// Take the second element and put it into _index: type ITYPE
@@ -189,32 +170,29 @@ bool getFirstAndSecondElementInLine(FILE*& _fileStream, uint64_t& _kIndex, ITYPE
 
 		_kIndex = atoll(ele[0].c_str());
 		_index = atol(ele[1].c_str());
-		free(line);
-                line = NULL;
 		return true;
 	}
 	return false;
 }
-
-bool getFirstAndSecondElementInLine(FILE*& _fileStream, std::string& _line, ITYPE& _freq)
+bool getFirstElementInLineFromFile(ifstream& _fileStream, string& _line)
 {
-	char *line = NULL;
+	std::string line;
 	size_t len = 0;
-	if (getline(&line, &len, _fileStream) != -1)
+	std::getline(_fileStream, line);
+	if (line.length() != 0)
 	{
-		// Take first element and put it into _line
-		// Take second element and put it into _freq
 		vector<string> ele;
-		getElementsFromLine(line, len, 2, ele);
+		getElementsFromLine(line, len, 1, ele);
 		_line = ele[0];
-		_freq = atoi(ele[1].c_str());
-		free(line);
-                line = NULL;
 		return true;
+	}
+	else
+	{
+		_line = "";
+		return false;
 	}
 	return false;
 }
-#endif
 
 void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFile)
 {
