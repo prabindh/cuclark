@@ -144,7 +144,8 @@ bool getFirstAndSecondElementInLine(ifstream& _fileStream, std::string& _line, I
 	std::string line;
 	size_t len = 0;
 	std::getline(_fileStream, line);
-	if (line.length() != 0)
+	len = line.length();
+	if (len != 0)
 	{
 		// Take first element and put it into _line
 		// Take second element and put it into _freq
@@ -161,7 +162,8 @@ bool getFirstAndSecondElementInLine(ifstream& _fileStream, uint64_t& _kIndex, IT
 	std::string line;	
 	size_t len = 0;
 	std::getline(_fileStream, line);
-	if (line.length() != 0)
+	len = line.length();
+	if (len != 0)
 	{
 		// Take the first element and put it into _kIndex: type IKMER
 		// Take the second element and put it into _index: type ITYPE
@@ -179,7 +181,8 @@ bool getFirstElementInLineFromFile(ifstream& _fileStream, string& _line)
 	std::string line;
 	size_t len = 0;
 	std::getline(_fileStream, line);
-	if (line.length() != 0)
+	len = line.length();
+	if (len != 0)
 	{
 		vector<string> ele;
 		getElementsFromLine(line, len, 1, ele);
