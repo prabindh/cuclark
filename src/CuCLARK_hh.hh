@@ -351,7 +351,7 @@ void CuCLARK<HKMERr>::createTargetFilesNames(vector<string>& _filesHT, vector<st
 {
 	for(size_t t = 0 ; t < m_labels_c.size(); t++)
 	{
-		char * fname = (char*) calloc(100, sizeof(char));
+		char * fname = (char*) calloc(MAX_PATH, sizeof(char));
 		if (m_isLightLoading)
 		{
 			sprintf(fname, "%s/%s_k%lu_light.ht", m_folder, m_labels_c[t].c_str(), (size_t) m_kmerSize);
@@ -368,7 +368,7 @@ void CuCLARK<HKMERr>::createTargetFilesNames(vector<string>& _filesHT, vector<st
 
 	for(size_t t = 0 ; t < m_labels.size(); t++)
 	{
-		char * fname = (char*) calloc(100, sizeof(char));
+		char * fname = (char*) calloc(MAX_PATH, sizeof(char));
 		if (m_isLightLoading)
 		{
 			sprintf(fname, "%s/%s_k%lu_light.ht", m_folder, m_labels_c[t].c_str(), (size_t) m_kmerSize);
@@ -1876,8 +1876,8 @@ bool CuCLARK<HKMERr>::getTargetsData(const char* _filesName, vector<string>& _fi
 			{	
 				m_labels.push_back(ele[1]); 
 			}
-			char * fname = (char*) calloc(100, sizeof(char));
-			sprintf(fname, "%s/%s_k%lu.ht", m_folder, ele[1].c_str(), (size_t)m_kmerSize);
+			char * fname = (char*) calloc(MAX_PATH, sizeof(char));
+			sprintf(fname, "%s/%s_k%lu.ht", m_folder, ele[1].c_str(), (size_t)m_kmerSize);		
 			FILE * fd = fopen(fname, "r");
 			areHTfilespresent =  (fd != NULL) && areHTfilespresent;
 			free(fname);
@@ -1896,7 +1896,7 @@ bool CuCLARK<HKMERr>::getTargetsData(const char* _filesName, vector<string>& _fi
 			if ( it  == m_labels_c.end())
 			{       m_labels_c.push_back(ele[2]);} 
 
-			char * fname = (char*) calloc(100, sizeof(char));
+			char * fname = (char*) calloc(MAX_PATH, sizeof(char));
 			sprintf(fname, "%s/%s_k%lu.ht", m_folder, ele[2].c_str(), (size_t) m_kmerSize);
 			FILE * fd = fopen(fname, "r");
 			areHTfilespresent =  (fd != NULL) && areHTfilespresent;
