@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 		{
 			if (i++ >= argc) {cerr << "Please specify the database directory!"<< endl; exit(1);    }
 			i_folder =  i;
-			if (!validFile(argv[i])) { cerr <<"Failed to find/read the directory:  " << argv[i] << endl; exit(1);}
+			if (!validFolder(argv[i])) { cerr <<"Failed to find/read the directory:  " << argv[i] << endl; exit(1);}
 			continue;
 		}
 		if (val ==   "-R")

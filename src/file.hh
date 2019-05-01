@@ -35,6 +35,11 @@
 #include<vector>
 #include "./dataType.hh"
 #include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+
+
 using namespace std;
 
 void getElementsFromLine(const std::string& line, const size_t& len, const int _maxElement, std::vector< std::string >& _elements);
@@ -56,5 +61,6 @@ void mergePairedFiles(const char* _file1, const char* _file2, const char* _objFi
 void deleteFile(const char* _filename);
 
 bool validFile(const char* _file);
+bool validFolder(const char* _folder);
 
 #endif //FILE_HH

@@ -278,3 +278,15 @@ bool validFile(const char* _file)
         {       return false;   }
         return true;
 }
+
+bool validFolder(const char *_folder)
+{
+	struct stat info;
+
+	if (stat(_folder, &info) != 0)
+		return false;
+	else if (info.st_mode & S_IFDIR)
+		return true;
+	else
+		return false;
+}
