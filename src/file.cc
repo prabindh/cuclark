@@ -293,3 +293,52 @@ bool validFolder(const char *_folder)
 	else
 		return false;
 }
+
+#ifdef WIN64
+bool unmapFile(uint8_t* mapping, HANDLE handle)
+{
+	if (!mapping || handle == INVALID_HANDLE_VALUE)
+		return false;
+
+	//mapping handle also todo
+	UnmapViewOfFile(mapping);
+	CloseHandle(handle);
+
+	return true;
+}
+bool mapExistingFileFromName(const char* name, uint8_t** pMap, HANDLE * handle)
+{
+	if (!pMap || !handle)
+		return false;
+
+	*pMap = 0;
+	*handle = 0;
+
+	HANDLE file = CreateFile(name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	if (file == INVALID_HANDLE_VALUE) 
+	{ 
+		printf("couldn't open %s\n", name); 
+		return false;
+	}
+	*handle = file;
+
+	HANDLE mapping = CreateFileMapping(file, 0, PAGE_READONLY, 0, 0, 0);
+	if (mapping == 0) 
+	{
+		CloseHandle(file);
+		printf("CreateFileMapping failed %s\n", name);
+		return false; 
+	}
+	void* data = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+	
+	if (!data)
+	{
+		CloseHandle(file);
+		printf("MapViewOfFile failed %s\n", name);
+		return false;
+	}
+	*pMap = (uint8_t*)data;
+
+	return true;
+}
+#endif

@@ -38,8 +38,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
-
-
+#ifdef WIN64
+#include <windows.h>
+#endif
 using namespace std;
 
 void getElementsFromLine(const std::string& line, const size_t& len, const int _maxElement, std::vector< std::string >& _elements);
@@ -62,5 +63,10 @@ void deleteFile(const char* _filename);
 
 bool validFile(const char* _file);
 bool validFolder(const char* _folder);
+
+#ifdef WIN64
+bool mapExistingFileFromName(const char* name, uint8_t** mapping, HANDLE * handle);
+bool unmapFile(uint8_t* mapping, HANDLE handle);
+#endif
 
 #endif //FILE_HH

@@ -538,7 +538,10 @@ void CuCLARK<HKMERr>::runSimple(const char* _fileTofilesname, const char* _fileR
 	fileSize = in.tellg();
 
 	uint8_t *map;
-#ifndef WIN64
+#ifdef WIN64
+	HANDLE fileMapHandle = INVALID_HANDLE_VALUE;
+	mapExistingFileFromName(_fileTofilesname, &map, &fileMapHandle);
+#else
 	int fd = open(_fileTofilesname, O_RDONLY);
 	if (fd == -1 || fileSize == 0)
 	{
@@ -580,7 +583,9 @@ void CuCLARK<HKMERr>::runSimple(const char* _fileTofilesname, const char* _fileR
 	// Measurement execution time
 	printSpeedStats(diff, fileResult);
 
-#ifndef WIN64
+#ifdef WIN64
+	unmapFile(map, fileMapHandle);
+#else
 	msync(map, fileSize, MS_SYNC);
 	if (munmap(map, fileSize) == -1)
 	{
