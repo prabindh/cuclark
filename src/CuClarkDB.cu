@@ -1299,7 +1299,7 @@ __device__ bool queryElement (const uint8_t& k, const uint64_t& _ikmer,
 			{	// key found
 				_returnLabel = d_labels[i];
 #ifdef DEBUG_KERNEL
-				printf("Part: %d, Label: %4d, Remainder: %8d\n", dbPart, _returnLabel, remainder);
+				printf("Part: %u-%u, Label: %4d, Remainder: %8d\n", dbPartStart, dbPartEnd, _returnLabel, remainder);
 #endif
 				return true;
 			}
